@@ -17,6 +17,7 @@
 # - jq
 # - streamlink
 # - youtube-dl
+# - youtube-dlc
 # - yq (python-yq)
 #
 
@@ -136,6 +137,15 @@ while [ $# -gt 0 ]; do
       shift
       shift
       ;;
+    --ytdlc-stream)
+      PARAM_YTDL_STREAM=true
+      shift
+      ;;
+    --ytdlc-args)
+      PARAM_YTDL_ARGS="$2"
+      shift
+      shift
+      ;;
     --streamlink-args)
       PARAM_STREAMLINK_ARGS="$2"
       shift
@@ -224,6 +234,20 @@ function func_check_deps() {
     if [ "$OSTYPE" == "linux-gnu" ]; then
       curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
       chmod a+rx /usr/local/bin/youtube-dl
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+      brew install ffmpeg
+    else
+      __info "No platform/architecture supported, please install it manually."
+    fi
+  fi
+
+   if command -v youtube-dlc >/dev/null 2>&1 ; then
+    __info "$(__green "Found"): youtube-dlc $(youtube-dlc --version | head -n 1)"
+  else
+    __info "youtube-dlc not found, trying to install..."
+    if [ "$OSTYPE" == "linux-gnu" ]; then
+      curl -L https://github.com/blackjack4494/yt-dlc/releases/latest/download/youtube-dlc -o /usr/local/bin/youtube-dlc
+      chmod a+rx /usr/local/bin/youtube-dlc
     elif [[ "$OSTYPE" == "darwin"* ]]; then
       brew install ffmpeg
     else
@@ -1164,6 +1188,17 @@ function func_download_youtube() {
         --retries 30 \
         $YTDL_ARGS -o "$OUTPUT_PATH.ts" \
         "${WEBPAGE_URL}" >> "$OUTPUT_PATH.log" 2>&1
+    elif [ "$YTDLC_STREAM" == "true" ]; then
+      youtube-dl \
+        --ignore-config \
+        --hls-prefer-native \
+        --hls-use-mpegts \
+        --no-part \
+        -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best' \
+        --force-ipv4 \
+        --retries 30 \
+        $YTDLC_ARGS -o "$OUTPUT_PATH.ts" \
+        "${WEBPAGE_URL}" >> "$OUTPUT_PATH.log" 2>&1
     else
       streamlink \
         --force \
@@ -1401,6 +1436,8 @@ CONFIG_BASE_DIR=`echo $CONFIG_RAW | jq -r .config.output | sed -e 's/~/'"$HOME_E
 CONFIG_INTERVAL=`echo $CONFIG_RAW | jq -r '.config.interval | select(.!=null)'`
 CONFIG_YTDL_STREAM=`echo $CONFIG_RAW | jq -r '.config.ytdl_stream | select(.!=null)'`
 CONFIG_YTDL_ARGS=`echo $CONFIG_RAW | jq -r '.config.ytdl_args | select(.!=null)'`
+CONFIG_YTDLC_STREAM=`echo $CONFIG_RAW | jq -r '.config.ytdlc_stream | select(.!=null)'`
+CONFIG_YTDLC_ARGS=`echo $CONFIG_RAW | jq -r '.config.ytdlc_args | select(.!=null)'`
 CONFIG_STREAMLINK_ARGS=`echo $CONFIG_RAW | jq -r '.config.streamlink_args | select(.!=null)'`
 CONFIG_SKIP_CONVERT=`echo $CONFIG_RAW | jq -r '.config.skip_convert | select(.!=null)'`
 CONFIG_SKIP_METADATA=`echo $CONFIG_RAW | jq -r '.config.skip_metadata | select(.!=null)'`
@@ -1425,6 +1462,7 @@ FILTER="${PARAM_FILTER:-$CONFIG_FILTER}"
 BASE_DIR="${_PARAM_BASE_DIR:-$CONFIG_BASE_DIR}"
 INTERVAL="${PARAM_INTERVAL:-$CONFIG_INTERVAL}"
 YTDL_STREAM="${PARAM_YTDL_STREAM:-$CONFIG_YTDL_STREAM}"
+YTDLC_STREAM="${PARAM_YTDLC_STREAM:-$CONFIG_YTDLC_STREAM}"
 YTDL_ARGS="${PARAM_YTDL_ARGS:-$CONFIG_YTDL_ARGS}"
 STREAMLINK_ARGS="${PARAM_STREAMLINK_ARGS:-$CONFIG_STREAMLINK_ARGS}"
 SKIP_CONVERT="${PARAM_SKIP_CONVERT:-$CONFIG_SKIP_CONVERT}"
@@ -1441,6 +1479,7 @@ __info "Mode                           : ${MODE}"
 __info "Output base dir                : ${BASE_DIR}"
 __info "Run interval (when loop)       : ${INTERVAL}"
 __info "Use youtube-dl for streams     : ${YTDL_STREAM}"
+__info "Use youtube-dlc for streams     : ${YTDLC_STREAM}"
 __info "Skip convert                   : ${SKIP_CONVERT}"
 __info "Skip embedding metadata        : ${SKIP_METADATA}"
 __info "Skip email notification        : ${SKIP_EMAIL}"

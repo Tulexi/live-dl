@@ -14,10 +14,10 @@ RUN apk update -f \
     jq \
     && rm -rf /var/cache/apk/*
 
-RUN pip install --upgrade streamlink yq youtube_dl
+RUN pip install --upgrade streamlink yq youtube_dl youtube_dlc
 
 COPY ./live-dl /opt/live-dl/
-COPY ./config.example.yml /opt/live-dl/config.yml
+#COPY ./config.example.yml /opt/live-dl/config.yml
 RUN chmod a+x /opt/live-dl/live-dl
 
 VOLUME /opt/live-dl/
