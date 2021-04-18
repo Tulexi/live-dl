@@ -138,11 +138,11 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     --ytdlc-stream)
-      PARAM_YTDL_STREAM=true
+      PARAM_YTDLC_STREAM=true
       shift
       ;;
     --ytdlc-args)
-      PARAM_YTDL_ARGS="$2"
+      PARAM_YTDLC_ARGS="$2"
       shift
       shift
       ;;
@@ -1400,6 +1400,8 @@ Options:
                               Avoid setting this value too low or your IP may get banned by YouTube
   --ytdl-stream               Use youtube-dl to handle livestreams instead of streamlink
   --ytdl-args                 Passing additional options to youtube-dl. options should be quoted
+  --ytdlc-stream              Use youtube-dlc to handle livestreams instead of streamlink
+  --ytdlc-args                Passing additional options to youtube-dlc. options should be quoted  
   --streamlink-args           Passing additional options to streamlink. options should be quoted
   --skip-check, -c            Skip dependency check, default: false
   --skip-convert              Skip converting TS file to MP4
@@ -1479,7 +1481,7 @@ __info "Mode                           : ${MODE}"
 __info "Output base dir                : ${BASE_DIR}"
 __info "Run interval (when loop)       : ${INTERVAL}"
 __info "Use youtube-dl for streams     : ${YTDL_STREAM}"
-__info "Use youtube-dlc for streams     : ${YTDLC_STREAM}"
+__info "Use youtube-dlc for streams    : ${YTDLC_STREAM}"
 __info "Skip convert                   : ${SKIP_CONVERT}"
 __info "Skip embedding metadata        : ${SKIP_METADATA}"
 __info "Skip email notification        : ${SKIP_EMAIL}"
