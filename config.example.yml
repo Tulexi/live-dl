@@ -70,6 +70,14 @@ config:
   # Default: ""
   ytdl_args: ""
 
+  # Use yt-dlp to handle livestreams instead of streamlink
+  # Default: false
+  ytdlp_stream: false
+
+  # Passing additional options to yt-dlp. options should be quoted
+  # Default: ""
+  ytdlp_args: ""
+
   # Passing additional options to streamlink. options should be quoted
   # Default: ""
   streamlink_args: ""
